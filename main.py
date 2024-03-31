@@ -17,6 +17,11 @@ def add_user():
             print("The login must be from 3 to 15 characters and contain only alphanumeric characters and at least one special character !@#$%^&*().")
             continue
 
+        c.execute("SELECT * FROM passwords WHERE username=?", (login,))
+        if c.fetchone():
+            print("User with username '{}' already exists.".format(login))
+            continue
+
         password = getpass.getpass(prompt='Enter your password: ')
         if not (8 <= len(password) <= 25 and re.search("[!@#$%^&*()]+", password)):
             print("The password must be between 8 and 25 characters long and contain at least one special character !@#$%^&*().")
@@ -63,6 +68,3 @@ def verify_password(username, password):
         return hashed_password_input == hashed_password_stored
     else:
         return False
-
-
-print(verify_password("Adam", "mocnehaslo@"))
