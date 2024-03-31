@@ -24,36 +24,36 @@ class PasswordManager:
                          (id INTEGER PRIMARY KEY, username TEXT, hash TEXT, salt TEXT)''')
         self.conn.commit()
 
-    def add_user(self):
+    def add_user(self, username, password, confirm_password):
         """
         Adds a new user to the database with a username and password.
+
+        Args:
+            username (str): The username to be added.
+            password (str): The password associated with the username.
+            confirm_password (str): The confirmation of the password.
 
         Returns:
             bool: True if the user was successfully added, False otherwise.
         """
-        while True:
-            login = input("Enter your login: ")
-            if not (3 <= len(login) <= 15 and re.match("^[a-zA-Z0-9_!@#$%^&*()]+$", login)):
-                print("The login must be from 3 to 15 characters and contain only alphanumeric characters and at least one special character !@#$%^&*().")
-                continue
+        if not (3 <= len(username) <= 15 and re.match("^[a-zA-Z0-9_!@#$%^&*()]+$", username)):
+            print("The login must be from 3 to 15 characters and contain only alphanumeric characters and at least one special character !@#$%^&*().")
+            return False
 
-            password = getpass.getpass(prompt='Enter your password: ')
-            if not (8 <= len(password) <= 25 and re.search("[!@#$%^&*()]+", password)):
-                print("The password must be between 8 and 25 characters long and contain at least one special character !@#$%^&*().")
-                continue
+        if not (8 <= len(password) <= 25 and re.search("[!@#$%^&*()]+", password)):
+            print("The password must be between 8 and 25 characters long and contain at least one special character !@#$%^&*().")
+            return False
 
-            confirm_password = getpass.getpass(prompt='Confirm password: ')
-            if password != confirm_password:
-                print("The passwords provided are not identical.")
-                continue
+        if password != confirm_password:
+            print("The passwords provided are not identical.")
+            return False
 
-            self.c.execute("SELECT * FROM passwords WHERE username=?", (login,))
-            if self.c.fetchone():
-                return False
+        self.c.execute("SELECT * FROM passwords WHERE username=?", (username,))
+        if self.c.fetchone():
+            print("Username already exists.")
+            return False
 
-            break
-
-        if self.add_password(login, password):
+        if self.add_password(username, password):
             return True
         else:
             return False
